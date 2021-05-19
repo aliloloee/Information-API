@@ -140,6 +140,9 @@ class InformationSerializer(serializers.ModelSerializer) :
         if attrs['gender'] == 'male' :
             if attrs['menopausal_condition'] != '' or attrs['irregular_menopausal'] != '' or attrs['birth_giving'] != '' :
                 raise serializers.ValidationError("Only females fill these fields : menopausal_condition, irregular_menopausal and birth_giving")
+        if attrs['gender'] == 'female' :
+            if attrs['menopausal_condition'] == '---------' or attrs['irregular_menopausal'] == '---------' or attrs['birth_giving'] == '---------' :
+                raise serializers.ValidationError("Females must fill these fields : menopausal_condition, irregular_menopausal and birth_giving")
 
         return attrs
 
