@@ -1,8 +1,0 @@
-1-functionality to remove profile picture (must be reset to no_profile.png)
-2-functionality to deactivate the account
-3-add About and contact page (for both authenticated and unauthenticated users)
-4-functionality to change password(for authenticated users)
-5-functionality for multi image product
-============================================================================
-6-multi language (fa/en/arabic)
-============================================================================
