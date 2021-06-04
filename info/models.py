@@ -2,15 +2,10 @@ from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
 
+from customUser.models import User
+from .models_utils import (ContentTypeRestrictedFileField, IntegerRangeField,
+                    validate_national_id, file_directory_path)
 
-class IntegerRangeField(models.IntegerField):
-    def __init__(self, verbose_name=None, max_value=None, *args, **kwargs):
-        self.max_value = max_value
-        models.IntegerField.__init__(self, verbose_name, *args, **kwargs)
-    def formfield(self, **kwargs):
-        defaults = {'min_value': 0, 'max_value':self.max_value}
-        defaults.update(kwargs)
-        return super(IntegerRangeField, self).formfield(**defaults)
 
 class Information(models.Model) :
     GENDER = (
@@ -51,7 +46,9 @@ class Information(models.Model) :
         ('no' , 'No'),
         ('yes' , 'Yes'),
     )
-    national_id = models.CharField(verbose_name='National id', max_length=20)
+
+    fullname = models.CharField(verbose_name='Fullname', max_length=100)
+    national_id = models.CharField(verbose_name='National id', max_length=20, validators=[validate_national_id], unique=True)
     gender = models.CharField(verbose_name='Gender', max_length=20, choices=GENDER, default='male')
     eye_color = models.CharField(verbose_name='Eye color', max_length=50)
     weight = models.DecimalField(verbose_name='Weight', max_digits=4, decimal_places=1)
@@ -124,6 +121,8 @@ class Information(models.Model) :
     updated = models.DateTimeField(auto_now=True)
 
     class Meta :
+        verbose_name = 'Information'
+        verbose_name_plural = 'Information'
         ordering = ('created',)
 
     # def clean(self) :
@@ -139,3 +138,37 @@ class Information(models.Model) :
     def __str__(self) :
         return f'{self.national_id}'
 
+
+
+# * It is vital to khow that, for models that have manytomany fields the process of creating a model instance is different.
+# * The process is that first we create an instance of the model including data for all fields of the model execpt the ---
+# * manytomany fields. when we created the instance (and save it), then we can add the manytomany field data to the ------
+# * instance. for more info check the url below :
+# * https://docs.djangoproject.com/en/3.2/topics/db/examples/many_to_many/
+class ECGInformation(models.Model) :
+    # related_name => returning all ECGs related to a doctor : doctor.ecg_data.all()
+    # related_query_name => filtering through ECGs related to a doctor : 
+    # doctor.ecg_data.filter(ecg__patient=<pk of a patient>)
+
+    doctor = models.ManyToManyField(User, related_name='ecg_data', related_query_name= 'ecg',
+                                    limit_choices_to={'user_type':1}, verbose_name='Doctor')
+
+    patient = models.ForeignKey(Information, on_delete=models.PROTECT, related_name='ecg', verbose_name='Related patient')
+
+    ecg = ContentTypeRestrictedFileField(upload_to=file_directory_path, content_types=['text/plain', ],
+                                        max_upload_size=2621440)
+
+    slug = models.SlugField(max_length=250, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta :
+        verbose_name = 'ECG Information'
+        verbose_name_plural = 'ECG Information'
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify('ecg' + self.patient.national_id)
+        super(ECGInformation, self).save(*args, **kwargs)
+
+    def __str__(self) :
+        return f'ECG of {self.patient.fullname}'

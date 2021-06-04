@@ -14,7 +14,7 @@ STATIC_DIR = BASE_DIR / 'static'
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'information-api.herokuapp.com']
 
@@ -28,7 +28,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'customUser',
+    'rest_framework.authtoken',
     'rest_framework',
+    # 'django-filter',
     'info',
 ]
 
@@ -68,24 +71,52 @@ if DEBUG :
     RENDERER += ('rest_framework.renderers.BrowsableAPIRenderer', )
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+    ),
     'DEFAULT_RENDERER_CLASSES' : RENDERER,
 }
+
+# ECG file limitations (API Section)
+MAX_ECG_FILE_SIZE = 2621440
+ECG_SUPPORTED_FILE_FORMAT = ['text', ]
 
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': config('NAME'),
-        'USER' : config('USER'),
-        'PASSWORD' : config('PASSWORD'),
-        'HOST' : config('HOST'),
-        'PORT' : '5432'
-    }
-}
+if not DEBUG :
 
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': config('NAME'),
+            'USER' : config('USER'),
+            'PASSWORD' : config('PASSWORD'),
+            'HOST' : config('HOST'),
+            'PORT' : '5432'
+        }
+    }
+
+else :
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
+
+AUTH_USER_MODEL = 'customUser.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -133,3 +164,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Media
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
