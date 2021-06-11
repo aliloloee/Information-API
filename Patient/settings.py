@@ -14,9 +14,10 @@ STATIC_DIR = BASE_DIR / 'static'
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'information-api.herokuapp.com']
+# ALLOWED_HOSTS = ['127.0.0.1', 'information-api.herokuapp.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -31,7 +32,6 @@ INSTALLED_APPS = [
     'customUser',
     'rest_framework.authtoken',
     'rest_framework',
-    # 'django-filter',
     'info',
 ]
 
@@ -93,27 +93,23 @@ ECG_SUPPORTED_FILE_FORMAT = ['text', ]
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-if not DEBUG :
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': config('NAME'),
+#         'USER' : config('USER'),
+#         'PASSWORD' : config('PASSWORD'),
+#         'HOST' : config('HOST'),
+#         'PORT' : '5432'
+#     }
+# }
 
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': config('NAME'),
-            'USER' : config('USER'),
-            'PASSWORD' : config('PASSWORD'),
-            'HOST' : config('HOST'),
-            'PORT' : '5432'
-        }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-
-else :
-
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 
 AUTH_USER_MODEL = 'customUser.User'
