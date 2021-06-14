@@ -1,5 +1,10 @@
 from rest_framework import serializers
+from datetime import datetime
 
+class TimeStampField(serializers.DateTimeField) :
+    def to_internal_value(self, value):
+        value = datetime.fromtimestamp(int(value))
+        return super().to_internal_value(value)
 
 class DateField(serializers.DateField) :
     def to_internal_value(self, value):

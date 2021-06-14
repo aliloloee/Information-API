@@ -15,8 +15,9 @@ def validate_national_id(value) :
 
 
 def file_directory_path(instance, filename):
+    file_type = filename.split('.')[1]
     record_time = timezone.now().strftime("%Y-%m-%d-%H-%M-%S")
-    return f'ECG-Files/{instance.patient.national_id}/{record_time}{filename[-4:]}'
+    return f'ECG-Files/{instance.patient.national_id}/{record_time}.{file_type}'
 
 
 class IntegerRangeField(models.IntegerField):
@@ -29,6 +30,8 @@ class IntegerRangeField(models.IntegerField):
         return super(IntegerRangeField, self).formfield(**defaults)
 
 
+
+# This is bullshit, no difference with just a simple filefield, remember to replace it later
 class ContentTypeRestrictedFileField(FileField):
     """
     Same as FileField, but you can specify:

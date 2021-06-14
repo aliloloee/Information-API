@@ -150,8 +150,11 @@ class ECGInformation(models.Model) :
     # related_query_name => filtering through ECGs related to a doctor : 
     # doctor.ecg_data.filter(ecg__patient=<pk of a patient>)
 
-    doctor = models.ManyToManyField(User, related_name='ecg_data', related_query_name= 'ecg',
-                                    limit_choices_to={'user_type':1}, verbose_name='Doctor')
+    doctor = models.ManyToManyField(User, related_name='doctor_ecg_data', limit_choices_to={'user_type':1},
+                                    verbose_name='Doctor')
+
+    nurse = models.ForeignKey(User, on_delete=models.PROTECT, related_name='nurse_ecg_data',
+                                    limit_choices_to={'user_type':2}, verbose_name='Nurse')
 
     patient = models.ForeignKey(Information, on_delete=models.PROTECT, related_name='ecg', verbose_name='Related patient')
 
@@ -159,6 +162,7 @@ class ECGInformation(models.Model) :
                                         max_upload_size=2621440)
 
     slug = models.SlugField(max_length=250, blank=True)
+    recorded_at = models.DateTimeField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

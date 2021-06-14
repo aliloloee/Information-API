@@ -87,7 +87,8 @@ REST_FRAMEWORK = {
 
 # ECG file limitations (API Section)
 MAX_ECG_FILE_SIZE = 2621440
-ECG_SUPPORTED_FILE_FORMAT = ['text', ]
+ECG_SUPPORTED_FILE_FORMAT = ['text/plain', 'application/json', ]
+
 
 
 # Database

@@ -1,19 +1,18 @@
 from django.contrib import admin
 from .models import Information, ECGInformation
-from .forms import InformationForm, ECGInformationForm
 
 @admin.register(Information)
 class InformationAdmin(admin.ModelAdmin) :
     model = Information
-    form = InformationForm
     list_display = ('national_id', 'fullname', 'pk')
+    readonly_fields = ('slug', )
 
 
 @admin.register(ECGInformation)
 class ECGInformationAdmin(admin.ModelAdmin) :
     list_display = ('get_patient_national_id', 'get_patient_name', )
     search_fields = ('patient__fullname', 'patient__national_id', 'doctor__fullname', )
-    form = ECGInformationForm
+    readonly_fields = ('recorded_at', 'slug', )
     # * searching for : patient name, doctor name, patient national id, 
 
     @admin.display(description='NATIONAL ID')

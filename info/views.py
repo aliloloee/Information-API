@@ -93,7 +93,7 @@ class ECGInformationViewSet(viewsets.ModelViewSet) :
 
     def create(self, request):
         data = request.data
-        serializer = ECGInformationSerializer(data=data)
+        serializer = ECGInformationSerializer(context={'nurse':request.user}, data=data)
         if serializer.is_valid(): 
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

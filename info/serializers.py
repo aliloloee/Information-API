@@ -1,13 +1,10 @@
 from django.conf import settings
-from django.db import models
-from django.db.models import fields
-from django.db.models.base import Model
 
-from rest_framework import serializers, validators
+from rest_framework import serializers
 
 from customUser.models import User, DefinedPeople
 from .models import Information, ECGInformation
-from .serializers_utils import ChoiceField, DateField
+from .serializers_utils import ChoiceField, DateField, TimeStampField
 from persian_tools import national_id
 
 class DynamicFieldsModelSerializer(serializers.ModelSerializer):
@@ -375,16 +372,25 @@ class UserSerializer(serializers.ModelSerializer) :
         return user
 
 
+class NurseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('pk', 'fullname', )
+
+
 # * As it was said in the models, creating a model with manytomany field is different(read from models). Also here when
 # * serializer.save() gets called, the model instance gets created just like the process explained in the models.
 class ECGInformationSerializer(serializers.ModelSerializer) :
+    recorded_at = TimeStampField()
+    nurse = NurseSerializer(read_only=True)
+
     class Meta :
         model = ECGInformation
         fields = '__all__'
-        read_only_fields = ("created", "updated", "slug", )
+        read_only_fields = ("nurse", "created", "updated", "slug", )
 
     def validate_ecg(self, value) :
-        file_type = value.content_type.split('/')[0]
+        file_type = value.content_type
 
         if file_type not in settings.ECG_SUPPORTED_FILE_FORMAT :
             raise serializers.ValidationError('File not supported')
@@ -392,6 +398,11 @@ class ECGInformationSerializer(serializers.ModelSerializer) :
         if value.size > settings.MAX_ECG_FILE_SIZE :
             raise serializers.ValidationError('File is too big')
         return value
+
+    def create(self, validated_data):
+        validated_data['nurse'] = self.context['nurse']
+        ecginfo = super().create(validated_data)
+        return ecginfo
 
 
 class DoctorUsersSerializers(serializers.ModelSerializer) :

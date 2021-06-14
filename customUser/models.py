@@ -66,7 +66,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'{self.fullname}'
 
     def __str__(self) :
-        if self.user_type == 1 :
+        if self.fullname != '' :
             return self.fullname
         return self.username
 
