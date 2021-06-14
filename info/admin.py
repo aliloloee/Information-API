@@ -12,7 +12,7 @@ class InformationAdmin(admin.ModelAdmin) :
 class ECGInformationAdmin(admin.ModelAdmin) :
     list_display = ('get_patient_national_id', 'get_patient_name', )
     search_fields = ('patient__fullname', 'patient__national_id', 'doctor__fullname', )
-    readonly_fields = ('recorded_at', 'slug', )
+    readonly_fields = ('recorded_at', 'slug', 'ecg', )
     # * searching for : patient name, doctor name, patient national id, 
 
     @admin.display(description='NATIONAL ID')

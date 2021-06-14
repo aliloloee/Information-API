@@ -2,6 +2,12 @@ from django.db import models
 from django.utils.text import slugify
 from django.urls import reverse
 
+# For Storage Clearing
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from django.core.files.storage import default_storage
+from django.conf import settings
+
 from customUser.models import User
 from .models_utils import (ContentTypeRestrictedFileField, IntegerRangeField,
                     validate_national_id, file_directory_path)
@@ -139,7 +145,6 @@ class Information(models.Model) :
         return f'{self.national_id}'
 
 
-
 # * It is vital to khow that, for models that have manytomany fields the process of creating a model instance is different.
 # * The process is that first we create an instance of the model including data for all fields of the model execpt the ---
 # * manytomany fields. when we created the instance (and save it), then we can add the manytomany field data to the ------
@@ -176,3 +181,11 @@ class ECGInformation(models.Model) :
 
     def __str__(self) :
         return f'ECG of {self.patient.fullname}'
+
+
+@receiver(pre_delete, sender=ECGInformation)
+def log_deleted_question(sender, instance, using, **kwargs):
+    media_url = settings.MEDIA_URL
+    ecg = instance.ecg.url
+    path = ecg.strip(media_url)
+    default_storage.delete(path)
